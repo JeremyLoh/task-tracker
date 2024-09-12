@@ -3,6 +3,7 @@ const assert = require("node:assert")
 const fs = require("node:fs")
 const { main } = require("../index.js")
 const { SAVE_FILE_PATH } = require("../storage/file.js")
+const { EOL } = require("node:os")
 
 describe("add cli task", () => {
   beforeEach(() => {
@@ -67,6 +68,39 @@ describe("add cli task", () => {
       saveFileData,
       /"id":"1","description":"Buy groceries"/,
       "Save file should have description of task"
+    )
+  })
+
+  it("should allow multiple tasks to be added", () => {
+    const { stdin } = mockStdinAndStdout()
+    main()
+    stdin.send(`add "FIRST'_'TASK"` + EOL)
+    stdin.send('add "second    task"' + EOL)
+    stdin.send(' add      "  third  =  task "   ' + EOL)
+    stdin.end()
+
+    assertSaveFileExists()
+    const saveFileData = readSaveFileContent()
+    const taskEntries = JSON.parse(saveFileData)
+    assert.strictEqual(
+      taskEntries.length,
+      3,
+      "Save file should have three new tasks"
+    )
+    assert.match(
+      saveFileData,
+      /"id":"1","description":"FIRST'_'TASK"/,
+      "Save file should have description of first task"
+    )
+    assert.match(
+      saveFileData,
+      /"id":"2","description":"second    task"/,
+      "Save file should have description of first task"
+    )
+    assert.match(
+      saveFileData,
+      /"id":"3","description":"third  =  task"/,
+      "Save file should have description of first task"
     )
   })
 
