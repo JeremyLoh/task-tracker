@@ -7,10 +7,34 @@ https://roadmap.sh/projects/task-tracker
 Build a simple command line interface (CLI) to track what you need to do, what you have done, and what you are currently working on.
 Practice working with the filesystem, handling user inputs, and building a simple CLI application
 
+# Running the application
+
+Execute the following command
+
+```bash
+node index.js
+```
+
+The save file will be created at the root directory of the project, as file `data.json`
+
+# Running tests
+
+The tests are written with node native test runner, with `mock-stdin` npm package for helping to pass stdin inputs to test cases
+
+Install the required package (`mock-stdin`) and run the tests
+
+```bash
+npm install
+npm run test
+```
+
+The save file will be deleted before and after a test case run
+
 # References
 
 1. node.js native test runner https://nodejs.org/api/test.html
 2. mock-stdin (for testing cli application) - https://www.npmjs.com/package/mock-stdin
+3. node.js equivalent of python's if `__name__` == `'__main__'` https://stackoverflow.com/questions/4981891/node-js-equivalent-of-pythons-if-name-main
 
 # Requirements
 
