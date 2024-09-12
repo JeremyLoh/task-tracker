@@ -14,6 +14,7 @@ class AddCommand {
       tasks.push(this.task.toJson())
       writeToSaveFile(JSON.stringify(tasks))
     }
+    return `Task added successfully (ID: ${this.task.id})`
   }
 }
 
