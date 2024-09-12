@@ -7,6 +7,11 @@ https://roadmap.sh/projects/task-tracker
 Build a simple command line interface (CLI) to track what you need to do, what you have done, and what you are currently working on.
 Practice working with the filesystem, handling user inputs, and building a simple CLI application
 
+# References
+
+1. node.js native test runner https://nodejs.org/api/test.html
+2. mock-stdin (for testing cli application) - https://www.npmjs.com/package/mock-stdin
+
 # Requirements
 
 The application should run from the command line, accept user actions and inputs as arguments, and store the tasks in a JSON file. The user should be able to:
