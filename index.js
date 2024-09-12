@@ -30,10 +30,12 @@ function printProgramName() {
 function processLine(line) {
   // returns a command to execute
   const commandKeyword = line.trim().split(/\s+/)[0]
-  const data = line.trim().slice(commandKeyword.length)
   switch (commandKeyword.toLowerCase()) {
     case "add":
-      return new AddCommand(new Task(data))
+      const { isValid, description } = AddCommand.parseInput(line)
+      return isValid
+        ? new AddCommand(new Task(description))
+        : new InvalidCommand(line)
     default:
       return new InvalidCommand(line)
   }

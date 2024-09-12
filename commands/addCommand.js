@@ -5,6 +5,24 @@ class AddCommand {
     this.task = task
   }
 
+  static parseInput(input) {
+    // only text in double quotes are added
+    const hasTwoDoubleQuote =
+      input.split("").filter((x) => x === '"').length === 2
+    if (!hasTwoDoubleQuote) {
+      return { isValid: false }
+    }
+    const found = input.match(/"(?<description>.+)"/)
+    if (
+      found == null ||
+      found.groups == null ||
+      found.groups.description.trim().length === 0
+    ) {
+      return { isValid: false }
+    }
+    return { isValid: true, description: found.groups.description.trim() }
+  }
+
   execute() {
     const existingContent = getSaveFileContent()
     if (existingContent == null || existingContent === "") {

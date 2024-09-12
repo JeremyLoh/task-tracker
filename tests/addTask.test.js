@@ -31,8 +31,15 @@ describe("add cli task", () => {
     )
   }
 
-  it("should add one task to JSON save file", () => {
+  function mockStdinAndStdout() {
     const stdin = require("mock-stdin").stdin()
+    const { stdout } = require("stdout-stderr")
+    stdout.start()
+    return { stdin, stdout }
+  }
+
+  it("should add one task to JSON save file", () => {
+    const { stdin } = mockStdinAndStdout()
     main()
     stdin.send('add "Buy groceries"')
     assertSaveFileExists()
@@ -58,16 +65,14 @@ describe("add cli task", () => {
     )
     assert.match(
       saveFileData,
-      /Buy groceries/,
+      /"id":"1","description":"Buy groceries"/,
       "Save file should have description of task"
     )
   })
 
   it("should display invalid command message to user when invalid command is given", () => {
-    const invalidCommand = 'invalid command "Buy groceries"'
-    const stdin = require("mock-stdin").stdin()
-    const { stdout } = require("stdout-stderr")
-    stdout.start()
+    const { stdin, stdout } = mockStdinAndStdout()
+    const invalidCommand = 'add" "Buy groceries"'
     main()
     stdin.send(invalidCommand)
     stdin.end()
@@ -81,6 +86,20 @@ describe("add cli task", () => {
       stdout.output,
       /List of valid commands:/,
       "Invalid Command message list of commands should be displayed to user"
+    )
+  })
+
+  it("should not allow add command with more than two double quote present", () => {
+    const { stdin, stdout } = mockStdinAndStdout()
+    const invalidCommand = 'add "Buy groceries" test"'
+    main()
+    stdin.send(invalidCommand)
+    stdin.end()
+    stdout.stop()
+    assert.match(
+      stdout.output,
+      new RegExp(String.raw`Invalid Command \[${invalidCommand}\] given.`),
+      "Invalid Command message should be displayed to user"
     )
   })
 })
