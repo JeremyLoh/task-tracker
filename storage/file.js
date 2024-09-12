@@ -20,15 +20,14 @@ function getTotalTaskCount() {
     const tasks = JSON.parse(data)
     return tasks.length
   } catch (error) {
-    console.error(
-      "getTotalTaskCount: Could not read save file / parse data in save file"
-    )
     return 0
   }
 }
 
 function createSaveFile() {
-  fs.writeFileSync(SAVE_FILE_PATH, "")
+  if (!fs.existsSync(SAVE_FILE_PATH)) {
+    fs.writeFileSync(SAVE_FILE_PATH, "")
+  }
 }
 
 function writeToSaveFile(data) {
