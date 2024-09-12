@@ -4,8 +4,6 @@ const fs = require("node:fs")
 const { main } = require("../index.js")
 const { SAVE_FILE_PATH } = require("../storage/file.js")
 
-const stdin = require("mock-stdin").stdin()
-
 describe("add cli task", () => {
   beforeEach(() => {
     deleteSaveFile()
@@ -34,6 +32,7 @@ describe("add cli task", () => {
   }
 
   it("should add one task to JSON save file", () => {
+    const stdin = require("mock-stdin").stdin()
     main()
     stdin.send('add "Buy groceries"')
     assertSaveFileExists()
@@ -61,6 +60,27 @@ describe("add cli task", () => {
       saveFileData,
       /Buy groceries/,
       "Save file should have description of task"
+    )
+  })
+
+  it("should display invalid command message to user when invalid command is given", () => {
+    const invalidCommand = 'invalid command "Buy groceries"'
+    const stdin = require("mock-stdin").stdin()
+    const { stdout } = require("stdout-stderr")
+    stdout.start()
+    main()
+    stdin.send(invalidCommand)
+    stdin.end()
+    stdout.stop()
+    assert.match(
+      stdout.output,
+      new RegExp(String.raw`Invalid Command \[${invalidCommand}\] given.`),
+      "Invalid Command message should be displayed to user"
+    )
+    assert.match(
+      stdout.output,
+      /List of valid commands:/,
+      "Invalid Command message list of commands should be displayed to user"
     )
   })
 })

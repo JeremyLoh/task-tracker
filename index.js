@@ -1,15 +1,16 @@
 const readline = require("node:readline")
-const { AddCommand } = require("./commands/addCommand")
 const { createSaveFile } = require("./storage/file")
 const { Task } = require("./model/task")
+const { InvalidCommand } = require("./commands/invalidCommand")
+const { AddCommand } = require("./commands/addCommand")
 
-function main() {
+function main(input = process.stdin, output = process.stdout) {
   printProgramName()
   createSaveFile()
 
   const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
+    input,
+    output,
     terminal: true,
   })
   rl.on("line", (line) => {
@@ -34,7 +35,7 @@ function processLine(line) {
     case "add":
       return new AddCommand(new Task(data))
     default:
-      break
+      return new InvalidCommand(line)
   }
 }
 

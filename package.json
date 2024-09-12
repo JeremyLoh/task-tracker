@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/JeremyLoh/task-tracker#readme",
   "devDependencies": {
-    "mock-stdin": "1.0.0"
+    "mock-stdin": "1.0.0",
+    "stdout-stderr": "0.1.13"
   }
 }
