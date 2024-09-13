@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "cli": "node index.js",
-    "test": "node --test"
+    "test": "vitest"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,7 @@
   "homepage": "https://github.com/JeremyLoh/task-tracker#readme",
   "devDependencies": {
     "mock-stdin": "1.0.0",
-    "stdout-stderr": "0.1.13"
+    "stdout-stderr": "0.1.13",
+    "vitest": "2.1.0"
   }
 }
