@@ -9,7 +9,7 @@ const TaskStatus = Object.freeze({
 class Task {
   constructor(
     description,
-    status = TaskStatus.TODO,
+    status = TaskStatus.TODO.description,
     createdAt = new Date().toString(),
     updatedAt = null
   ) {
@@ -20,6 +20,21 @@ class Task {
     this.status = status
     this.createdAt = createdAt
     this.updatedAt = updatedAt
+  }
+
+  static convertFromJson(json) {
+    const task = new Task(
+      json.description,
+      json.status,
+      json.createdAt,
+      json.updatedAt === "null" ? null : json.updatedAt
+    )
+    task.id = json.id
+    return task
+  }
+
+  toPrint() {
+    return `${this.id}) ${this.description} [${this.status}]`
   }
 
   toString() {

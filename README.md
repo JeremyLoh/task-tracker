@@ -19,7 +19,7 @@ The save file will be created at the root directory of the project, as file `dat
 
 # Running tests
 
-The tests are written with node native test runner, with `mock-stdin` and `stdout-stderr` npm package for helping to pass stdin inputs to test cases and check stdout
+The tests are written with `vitest`, with `mock-stdin` and `stdout-stderr` npm package for helping to pass stdin inputs to test cases and check stdout
 
 Install the required package (`mock-stdin`, `stdout-stderr`) and run the tests
 
@@ -32,7 +32,7 @@ The save file will be deleted before and after a test case run
 
 # References
 
-1. node.js native test runner https://nodejs.org/api/test.html
+1. vitest - https://vitest.dev/
 2. mock-stdin (for testing cli application) - https://www.npmjs.com/package/mock-stdin
 3. stdout-stderr (for testing cli application) - https://www.npmjs.com/package/stdout-stderr
 4. node.js equivalent of python's if `__name__` == `'__main__'` https://stackoverflow.com/questions/4981891/node-js-equivalent-of-pythons-if-name-main
