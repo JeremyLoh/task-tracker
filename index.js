@@ -5,13 +5,13 @@ const { InvalidCommand } = require("./commands/invalidCommand")
 const { AddCommand } = require("./commands/addCommand")
 const { ListCommand } = require("./commands/listCommand")
 
-function main(input = process.stdin, output = process.stdout) {
+function main(onExit) {
   printProgramName()
   createSaveFile()
 
   const rl = readline.createInterface({
-    input,
-    output,
+    input: process.stdin,
+    output: process.stdout,
     terminal: true,
   })
   rl.on("line", (line) => {
@@ -21,6 +21,11 @@ function main(input = process.stdin, output = process.stdout) {
       console.log(output)
     }
     printProgramName()
+  })
+  rl.on("close", async () => {
+    if (onExit) {
+      await onExit()
+    }
   })
 }
 
