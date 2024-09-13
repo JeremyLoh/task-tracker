@@ -1,8 +1,9 @@
 const readline = require("node:readline")
-const { createSaveFile } = require("./storage/file")
+const { createSaveFile, getAllTasks } = require("./storage/file")
 const { Task } = require("./model/task")
 const { InvalidCommand } = require("./commands/invalidCommand")
 const { AddCommand } = require("./commands/addCommand")
+const { ListCommand } = require("./commands/listCommand")
 
 function main(input = process.stdin, output = process.stdout) {
   printProgramName()
@@ -29,8 +30,14 @@ function printProgramName() {
 
 function processLine(line) {
   // returns a command to execute
-  const commandKeyword = line.trim().split(/\s+/)[0]
+  const words = line.trim().split(/\s+/)
+  const commandKeyword = words[0]
   switch (commandKeyword.toLowerCase()) {
+    case "list":
+      const listType = ListCommand.getListType(line.slice(4).trim())
+      return listType == null
+        ? new InvalidCommand(line)
+        : new ListCommand(getAllTasks(), listType)
     case "add":
       const { isValid, description } = AddCommand.parseInput(line)
       return isValid

@@ -11,6 +11,19 @@ function getSaveFileContent() {
   }
 }
 
+function getAllTasks() {
+  try {
+    const data = getSaveFileContent(SAVE_FILE_PATH)
+    if (data == null) {
+      return []
+    }
+    const tasks = JSON.parse(data)
+    return tasks
+  } catch (error) {
+    return []
+  }
+}
+
 function getTotalTaskCount() {
   try {
     const data = getSaveFileContent(SAVE_FILE_PATH)
@@ -37,6 +50,7 @@ function writeToSaveFile(data) {
 module.exports = {
   SAVE_FILE_PATH,
   getSaveFileContent,
+  getAllTasks,
   getTotalTaskCount,
   createSaveFile,
   writeToSaveFile,

@@ -1,16 +1,15 @@
-const { describe, it, beforeEach, after } = require("node:test")
-const assert = require("node:assert")
+import { describe, it, beforeEach, afterEach, expect } from "vitest"
 const fs = require("node:fs")
+const { EOL } = require("node:os")
 const { main } = require("../index.js")
 const { SAVE_FILE_PATH } = require("../storage/file.js")
-const { EOL } = require("node:os")
 
 describe("add cli task", () => {
   beforeEach(() => {
     deleteSaveFile()
   })
 
-  after(() => {
+  afterEach(() => {
     deleteSaveFile()
   })
 
@@ -24,54 +23,41 @@ describe("add cli task", () => {
     return fs.readFileSync(SAVE_FILE_PATH, "utf8")
   }
 
-  function assertSaveFileExists() {
-    assert.strictEqual(
-      fs.existsSync(SAVE_FILE_PATH),
-      true,
-      `Save File does not exist at ${SAVE_FILE_PATH}`
-    )
-  }
-
   function mockStdinAndStdout() {
     const stdin = require("mock-stdin").stdin()
     const { stdout } = require("stdout-stderr")
     stdout.start()
+    stdout.print = true
     return { stdin, stdout }
   }
 
-  it("should add one task to JSON save file", () => {
+  it("should add one task to JSON save file", async () => {
     const { stdin } = mockStdinAndStdout()
     main()
     stdin.send('add "Buy groceries"')
-    assertSaveFileExists()
     stdin.end()
-    assertSaveFileExists()
 
     const saveFileData = readSaveFileContent()
     const taskEntries = JSON.parse(saveFileData)
-    assert.strictEqual(
-      taskEntries.length,
+    await expect(taskEntries.length).toBe(
       1,
       "Save file should have one new task"
     )
-    assert.match(
-      saveFileData,
+    await expect(saveFileData).toMatch(
       /"createdAt":/,
       "Save file should have one new task with createdAt field"
     )
-    assert.match(
-      saveFileData,
+    await expect(saveFileData).toMatch(
       /"updatedAt":null/,
       "Save file should have one new task with updatedAt field of null"
     )
-    assert.match(
-      saveFileData,
+    await expect(saveFileData).toMatch(
       /"id":"1","description":"Buy groceries"/,
       "Save file should have description of task"
     )
   })
 
-  it("should allow multiple tasks to be added", () => {
+  it("should allow multiple tasks to be added", async () => {
     const { stdin } = mockStdinAndStdout()
     main()
     stdin.send(`add "FIRST'_'TASK"` + EOL)
@@ -79,59 +65,51 @@ describe("add cli task", () => {
     stdin.send(' add      "  third  =  task "   ' + EOL)
     stdin.end()
 
-    assertSaveFileExists()
     const saveFileData = readSaveFileContent()
     const taskEntries = JSON.parse(saveFileData)
-    assert.strictEqual(
-      taskEntries.length,
+    await expect(taskEntries.length).toBe(
       3,
       "Save file should have three new tasks"
     )
-    assert.match(
-      saveFileData,
+    await expect(saveFileData).toMatch(
       /"id":"1","description":"FIRST'_'TASK"/,
       "Save file should have description of first task"
     )
-    assert.match(
-      saveFileData,
+    await expect(saveFileData).toMatch(
       /"id":"2","description":"second    task"/,
       "Save file should have description of first task"
     )
-    assert.match(
-      saveFileData,
+    await expect(saveFileData).toMatch(
       /"id":"3","description":"third  =  task"/,
       "Save file should have description of first task"
     )
   })
 
-  it("should display invalid command message to user when invalid command is given", () => {
+  it("should display invalid command message to user when invalid command is given", async () => {
     const { stdin, stdout } = mockStdinAndStdout()
     const invalidCommand = 'add" "Buy groceries"'
     main()
     stdin.send(invalidCommand)
     stdin.end()
     stdout.stop()
-    assert.match(
-      stdout.output,
+    await expect(stdout.output).toMatch(
       new RegExp(String.raw`Invalid Command \[${invalidCommand}\] given.`),
       "Invalid Command message should be displayed to user"
     )
-    assert.match(
-      stdout.output,
+    await expect(stdout.output).toMatch(
       /List of valid commands:/,
       "Invalid Command message list of commands should be displayed to user"
     )
   })
 
-  it("should not allow add command with more than two double quote present", () => {
+  it("should not allow add command with more than two double quote present", async () => {
     const { stdin, stdout } = mockStdinAndStdout()
     const invalidCommand = 'add "Buy groceries" test"'
     main()
     stdin.send(invalidCommand)
     stdin.end()
     stdout.stop()
-    assert.match(
-      stdout.output,
+    await expect(stdout.output).toMatch(
       new RegExp(String.raw`Invalid Command \[${invalidCommand}\] given.`),
       "Invalid Command message should be displayed to user"
     )
