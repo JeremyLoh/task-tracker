@@ -1,0 +1,24 @@
+{
+  "name": "task-tracker",
+  "version": "1.0.0",
+  "description": "CLI app to track your tasks and manage your to-do list",
+  "main": "index.js",
+  "scripts": {
+    "cli": "node index.js",
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JeremyLoh/task-tracker.git"
+  },
+  "author": "JeremyLoh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JeremyLoh/task-tracker/issues"
+  },
+  "homepage": "https://github.com/JeremyLoh/task-tracker#readme",
+  "devDependencies": {
+    "mock-stdin": "1.0.0",
+    "stdout-stderr": "0.1.13"
+  }
+}
