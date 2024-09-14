@@ -15,7 +15,7 @@ Execute the following command
 node index.js
 ```
 
-The save file will be created at the root directory of the project, as file `data.json`
+The save file will be created at the `/storage` directory of the project, as file `data.json`
 
 # Running tests
 
