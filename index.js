@@ -6,6 +6,7 @@ const { AddCommand } = require("./commands/addCommand")
 const { ListCommand } = require("./commands/listCommand")
 const { MarkDoneCommand } = require("./commands/markDoneCommand")
 const { MarkInProgressCommand } = require("./commands/markInProgressCommand")
+const { UpdateCommand } = require("./commands/updateCommand")
 
 function main(onExit) {
   printProgramName()
@@ -38,38 +39,44 @@ function printProgramName() {
 function processLine(line) {
   // returns a command to execute
   const words = line.trim().split(/\s+/)
-  const commandKeyword = words[0]
-  switch (commandKeyword.toLowerCase()) {
-    case "list":
-      const listType = ListCommand.getListType(line.slice(4).trim())
-      return listType == null
-        ? new InvalidCommand(line)
-        : new ListCommand(getAllTasks(), listType)
-    case "add":
-      const { isValid, description } = AddCommand.parseInput(line)
-      return isValid
-        ? new AddCommand(new Task(description))
-        : new InvalidCommand(line)
-    case "mark-done":
-      try {
-        return new MarkDoneCommand(
-          getAllTasks(),
-          Number.parseInt(words[1].trim()) - 1
-        )
-      } catch (error) {
-        return new InvalidCommand(line)
-      }
-    case "mark-in-progress":
-      try {
-        return new MarkInProgressCommand(
-          getAllTasks(),
-          Number.parseInt(words[1].trim()) - 1
-        )
-      } catch (error) {
-        return new InvalidCommand(line)
-      }
-    default:
+  const commandKeyword = words[0].toLowerCase()
+  if (commandKeyword === "list") {
+    const listType = ListCommand.getListType(line.slice(4).trim())
+    return listType == null
+      ? new InvalidCommand(line)
+      : new ListCommand(getAllTasks(), listType)
+  } else if (commandKeyword === "add") {
+    const { isValid, description } = AddCommand.parseInput(line)
+    return isValid
+      ? new AddCommand(new Task(description))
+      : new InvalidCommand(line)
+  } else if (commandKeyword === "mark-done") {
+    try {
+      return new MarkDoneCommand(
+        getAllTasks(),
+        Number.parseInt(words[1].trim()) - 1
+      )
+    } catch (error) {
       return new InvalidCommand(line)
+    }
+  } else if (commandKeyword === "mark-in-progress") {
+    try {
+      return new MarkInProgressCommand(
+        getAllTasks(),
+        Number.parseInt(words[1].trim()) - 1
+      )
+    } catch (error) {
+      return new InvalidCommand(line)
+    }
+  } else if (commandKeyword === "update") {
+    const { isValid, index, description } = UpdateCommand.parseInput(
+      line.slice(6).trim()
+    )
+    return isValid
+      ? new UpdateCommand(getAllTasks(), index, description)
+      : new InvalidCommand(line)
+  } else {
+    return new InvalidCommand(line)
   }
 }
 
