@@ -2,7 +2,7 @@ const { getTotalTaskCount } = require("../storage/file")
 
 const TaskStatus = Object.freeze({
   TODO: Symbol("todo"),
-  IN_PROGRESS: Symbol("in_progress"),
+  IN_PROGRESS: Symbol("in-progress"),
   DONE: Symbol("done"),
 })
 

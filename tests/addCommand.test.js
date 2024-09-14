@@ -1,13 +1,9 @@
-import { describe, it, beforeEach, afterEach, expect } from "vitest"
-const fs = require("node:fs")
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest"
 const { EOL } = require("node:os")
+import { deleteSaveFile, readSaveFileContent } from "./testUtil.js"
 const { main } = require("../index.js")
-const { SAVE_FILE_PATH } = require("../storage/file.js")
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-const WAIT_TIME_FOR_IO_IN_MS = 500
-
-describe("add command", () => {
+describe("add command", async () => {
   beforeEach(() => {
     deleteSaveFile()
   })
@@ -15,16 +11,6 @@ describe("add command", () => {
   afterEach(() => {
     deleteSaveFile()
   })
-
-  function deleteSaveFile() {
-    if (fs.existsSync(SAVE_FILE_PATH)) {
-      fs.unlinkSync(SAVE_FILE_PATH)
-    }
-  }
-
-  function readSaveFileContent() {
-    return fs.readFileSync(SAVE_FILE_PATH, "utf8")
-  }
 
   function mockStdinAndStdout() {
     const stdin = require("mock-stdin").stdin()
@@ -34,97 +20,104 @@ describe("add command", () => {
     return { stdin, stdout }
   }
 
-  it("should add one task to JSON save file", async () => {
+  it.sequential("should add one task to JSON save file", async () => {
     const { stdin } = mockStdinAndStdout()
     async function onExit() {
-      await sleep(WAIT_TIME_FOR_IO_IN_MS)
       const saveFileData = readSaveFileContent()
       const taskEntries = JSON.parse(saveFileData)
-      await expect(taskEntries.length).toBe(
-        1,
-        "Save file should have one new task"
-      )
-      await expect(saveFileData).toMatch(
+      expect(taskEntries.length).toBe(1, "Save file should have one new task")
+      expect(saveFileData).toMatch(
         /"createdAt":/,
         "Save file should have one new task with createdAt field"
       )
-      await expect(saveFileData).toMatch(
+      expect(saveFileData).toMatch(
         /"updatedAt":null/,
         "Save file should have one new task with updatedAt field of null"
       )
-      await expect(saveFileData).toMatch(
+      expect(saveFileData).toMatch(
         /"id":"1","description":"Buy groceries"/,
         "Save file should have description of task"
       )
     }
-    main(onExit)
+    const callback = async () => await onExit()
+    main(callback)
     stdin.send('add "Buy groceries"')
     stdin.end()
+    await vi.waitFor(callback)
   })
 
-  it("should allow multiple tasks to be added", async () => {
+  it.sequential("should allow multiple tasks to be added", async () => {
     const { stdin } = mockStdinAndStdout()
     async function onExit() {
-      await sleep(WAIT_TIME_FOR_IO_IN_MS)
       const saveFileData = readSaveFileContent()
       const taskEntries = JSON.parse(saveFileData)
-      await expect(taskEntries.length).toBe(
+      expect(taskEntries.length).toBe(
         3,
         "Save file should have three new tasks"
       )
-      await expect(saveFileData).toMatch(
+      expect(saveFileData).toMatch(
         /"id":"1","description":"FIRST'_'TASK"/,
         "Save file should have description of first task"
       )
-      await expect(saveFileData).toMatch(
+      expect(saveFileData).toMatch(
         /"id":"2","description":"second    task"/,
         "Save file should have description of first task"
       )
-      await expect(saveFileData).toMatch(
+      expect(saveFileData).toMatch(
         /"id":"3","description":"third  =  task"/,
         "Save file should have description of first task"
       )
     }
-    main(onExit)
+    const callback = async () => await onExit()
+    main(callback)
     stdin.send(`add "FIRST'_'TASK"` + EOL)
     stdin.send('add "second    task"' + EOL)
     stdin.send(' add      "  third  =  task "   ' + EOL)
     stdin.end()
+    await vi.waitFor(callback)
   })
 
-  it("should display invalid command message to user when invalid command is given", async () => {
-    const { stdin, stdout } = mockStdinAndStdout()
-    async function onExit() {
-      await sleep(WAIT_TIME_FOR_IO_IN_MS)
-      await expect(stdout.output).toMatch(
-        new RegExp(String.raw`Invalid Command \[${invalidCommand}\] given.`),
-        "Invalid Command message should be displayed to user"
-      )
-      await expect(stdout.output).toMatch(
-        /List of valid commands:/,
-        "Invalid Command message list of commands should be displayed to user"
-      )
+  it.sequential(
+    "should display invalid command message to user when invalid command is given",
+    async () => {
+      const { stdin, stdout } = mockStdinAndStdout()
+      async function onExit() {
+        expect(stdout.output).toMatch(
+          new RegExp(String.raw`Invalid Command \[${invalidCommand}\] given.`),
+          "Invalid Command message should be displayed to user"
+        )
+        expect(stdout.output).toMatch(
+          /List of valid commands:/,
+          "Invalid Command message list of commands should be displayed to user"
+        )
+      }
+      const invalidCommand = 'add" "Buy groceries"'
+      const callback = async () => await onExit()
+      main(callback)
+      stdin.send(invalidCommand)
+      stdin.end()
+      stdout.stop()
+      await vi.waitFor(callback)
     }
-    const invalidCommand = 'add" "Buy groceries"'
-    main(onExit)
-    stdin.send(invalidCommand)
-    stdin.end()
-    stdout.stop()
-  })
+  )
 
-  it("should not allow add command with more than two double quote present", async () => {
-    const { stdin, stdout } = mockStdinAndStdout()
-    async function onExit() {
-      await sleep(WAIT_TIME_FOR_IO_IN_MS)
-      await expect(stdout.output).toMatch(
-        new RegExp(String.raw`Invalid Command \[${invalidCommand}\] given.`),
-        "Invalid Command message should be displayed to user"
-      )
+  it.sequential(
+    "should not allow add command with more than two double quote present",
+    async () => {
+      const { stdin, stdout } = mockStdinAndStdout()
+      async function onExit() {
+        expect(stdout.output).toMatch(
+          new RegExp(String.raw`Invalid Command \[${invalidCommand}\] given.`),
+          "Invalid Command message should be displayed to user"
+        )
+      }
+      const invalidCommand = 'add "Buy groceries" test"'
+      const callback = async () => await onExit()
+      main(callback)
+      stdin.send(invalidCommand)
+      stdin.end()
+      stdout.stop()
+      await vi.waitFor(callback)
     }
-    const invalidCommand = 'add "Buy groceries" test"'
-    main(onExit)
-    stdin.send(invalidCommand)
-    stdin.end()
-    stdout.stop()
-  })
+  )
 })

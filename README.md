@@ -19,6 +19,10 @@ The save file will be created at the root directory of the project, as file `dat
 
 # Running tests
 
+## To prevent flaky tests due to writing to same save json file, ensure vitest is running with flag `vitest --sequence.concurrent=false --no-file-parallelism`
+
+https://vitest.dev/guide/improving-performance#test-isolation
+
 The tests are written with `vitest`, with `mock-stdin` and `stdout-stderr` npm package for helping to pass stdin inputs to test cases and check stdout
 
 Install the required package (`mock-stdin`, `stdout-stderr`) and run the tests

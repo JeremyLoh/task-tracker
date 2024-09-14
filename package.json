@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "cli": "node index.js",
-    "test": "vitest"
+    "test": "vitest --sequence.concurrent=false --no-file-parallelism"
   },
   "repository": {
     "type": "git",
