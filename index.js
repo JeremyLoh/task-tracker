@@ -5,6 +5,7 @@ const { InvalidCommand } = require("./commands/invalidCommand")
 const { AddCommand } = require("./commands/addCommand")
 const { ListCommand } = require("./commands/listCommand")
 const { MarkDoneCommand } = require("./commands/markDoneCommand")
+const { MarkInProgressCommand } = require("./commands/markInProgressCommand")
 
 function main(onExit) {
   printProgramName()
@@ -52,6 +53,15 @@ function processLine(line) {
     case "mark-done":
       try {
         return new MarkDoneCommand(
+          getAllTasks(),
+          Number.parseInt(words[1].trim()) - 1
+        )
+      } catch (error) {
+        return new InvalidCommand(line)
+      }
+    case "mark-in-progress":
+      try {
+        return new MarkInProgressCommand(
           getAllTasks(),
           Number.parseInt(words[1].trim()) - 1
         )
