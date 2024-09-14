@@ -1,6 +1,7 @@
 const { Task } = require("../model/task")
 const { getAllTasks } = require("../storage/file")
 const { AddCommand } = require("./addCommand")
+const { DeleteCommand } = require("./deleteCommand")
 const { InvalidCommand } = require("./invalidCommand")
 const { ListCommand } = require("./listCommand")
 const { MarkDoneCommand } = require("./markDoneCommand")
@@ -22,6 +23,8 @@ class CommandFactory {
         return createMarkInProgressCommand(line)
       case "update":
         return createUpdateCommand(line)
+      case "delete":
+        return createDeleteCommand(line)
       default:
         return new InvalidCommand(line)
     }
@@ -73,6 +76,14 @@ function createUpdateCommand(line) {
   return isValid
     ? new UpdateCommand(getAllTasks(), index, description)
     : new InvalidCommand(line)
+}
+
+function createDeleteCommand(line) {
+  const { isValid, index } = DeleteCommand.parseInput(line.slice(6).trim())
+  if (!isValid) {
+    return new InvalidCommand(line)
+  }
+  return new DeleteCommand(getAllTasks(), index)
 }
 
 module.exports = { CommandFactory }
