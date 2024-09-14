@@ -85,4 +85,108 @@ describe("list command", async () => {
     stdout.stop()
     await vi.waitFor(callback)
   })
+
+  it.sequential("should list done tasks", async () => {
+    const { stdin, stdout } = mockStdinAndStdout()
+    async function onExit() {
+      expect(stdout.output).not.toMatch(
+        /1\) first task \[todo\]/,
+        "Should not list first task as it is not done"
+      )
+      expect(stdout.output).toMatch(
+        /2\) second task \[done\]/,
+        "Should list second task as it is done"
+      )
+    }
+    const callback = async () => await onExit()
+    main(callback)
+    stdin.send(`add "first task"` + EOL)
+    stdin.send(`add "second task"` + EOL)
+    stdin.send(`mark-done 2` + EOL)
+    stdin.send(`list done` + EOL)
+    stdin.end()
+    stdout.stop()
+    await vi.waitFor(callback)
+  })
+
+  it.sequential("should list todo tasks", async () => {
+    const { stdin, stdout } = mockStdinAndStdout()
+    async function onExit() {
+      expect(stdout.output).toMatch(
+        /1\) first task \[todo\]/,
+        "Should list first task as it is todo status"
+      )
+      expect(stdout.output).not.toMatch(
+        /2\) second task \[done\]/,
+        "Should not list second task as it is not todo status"
+      )
+    }
+    const callback = async () => await onExit()
+    main(callback)
+    stdin.send(`add "first task"` + EOL)
+    stdin.send(`add "second task"` + EOL)
+    stdin.send(`mark-done 2` + EOL)
+    stdin.send(`list todo` + EOL)
+    stdin.end()
+    stdout.stop()
+    await vi.waitFor(callback)
+  })
+
+  it.sequential("should list in-progress tasks", async () => {
+    const { stdin, stdout } = mockStdinAndStdout()
+    async function onExit() {
+      expect(stdout.output).not.toMatch(
+        /1\) first task \[todo\]/,
+        "Should not list first task as it is not in-progress status"
+      )
+      expect(stdout.output).not.toMatch(
+        /2\) second task \[done\]/,
+        "Should not list second task as it is not in-progress status"
+      )
+      expect(stdout.output).toMatch(
+        /3\) third task \[in-progress\]/,
+        "Should list third task as it is in-progress status"
+      )
+    }
+    const callback = async () => await onExit()
+    main(callback)
+    stdin.send(`add "first task"` + EOL)
+    stdin.send(`add "second task"` + EOL)
+    stdin.send(`add "third task"` + EOL)
+    stdin.send(`mark-done 2` + EOL)
+    stdin.send(`mark-in-progress 3` + EOL)
+    stdin.send(`list in-progress` + EOL)
+    stdin.end()
+    stdout.stop()
+    await vi.waitFor(callback)
+  })
+
+  it.sequential("should list all task types", async () => {
+    const { stdin, stdout } = mockStdinAndStdout()
+    async function onExit() {
+      expect(stdout.output).toMatch(
+        /1\) first task \[todo\]/,
+        "Should list first task"
+      )
+      expect(stdout.output).toMatch(
+        /2\) second task \[done\]/,
+        "Should list second task"
+      )
+      expect(stdout.output).toMatch(
+        /3\) third task \[in-progress\]/,
+        "Should list third task"
+      )
+    }
+    const callback = async () => await onExit()
+    main(callback)
+    stdin.send(`add "first task"` + EOL)
+    stdin.send(`add "second task"` + EOL)
+    stdin.send(`add "third task"` + EOL)
+    stdin.send(`mark-done 2` + EOL)
+    stdin.send(`mark-in-progress 3` + EOL)
+    stdin.send(`list` + EOL)
+    stdin.end()
+    stdout.stop()
+    await vi.waitFor(callback)
+  })
 })
