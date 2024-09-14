@@ -4,6 +4,7 @@ const { Task } = require("./model/task")
 const { InvalidCommand } = require("./commands/invalidCommand")
 const { AddCommand } = require("./commands/addCommand")
 const { ListCommand } = require("./commands/listCommand")
+const { MarkDoneCommand } = require("./commands/markDoneCommand")
 
 function main(onExit) {
   printProgramName()
@@ -48,6 +49,15 @@ function processLine(line) {
       return isValid
         ? new AddCommand(new Task(description))
         : new InvalidCommand(line)
+    case "mark-done":
+      try {
+        return new MarkDoneCommand(
+          getAllTasks(),
+          Number.parseInt(words[1].trim()) - 1
+        )
+      } catch (error) {
+        return new InvalidCommand(line)
+      }
     default:
       return new InvalidCommand(line)
   }
